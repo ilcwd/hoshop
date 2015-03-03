@@ -39,9 +39,9 @@
         {% endif %}
 
         <div class="panel panel-info">
-            <div class="panel-heading">{{ good.name }}</div>
+            <div class="panel-heading" style="font-size:17px">{{ good.name }}</div>
             <div class="panel-body">
-                <p>{{ good.description }}</p>
+                <p  style="font-size:16px">{{ good.description }}</p>
             </div>
             <ul class="list-group">
                 <li class="list-group-item">
@@ -52,7 +52,7 @@
                             </span>
                         </div>
                         <div class="col-xs-3">
-                            <button class="btn btn-primary" onclick="addToCart(this, {{ good.goodid }})">￥{{ decode_price(good.price) }}</button>
+                            <button class="btn btn-primary" onclick="addToCart(this, {{ good.goodid }})">点击加入购物车{{ decode_price(good.price) }}</button>
                         </div>
                     </div>
                 </li>
