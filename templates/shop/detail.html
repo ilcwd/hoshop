@@ -48,7 +48,7 @@
                     <div class="row">
                         <div class="col-xs-5 cl-hs-good-numberbar" id="id-hs-good-numberbar-{{ good.goodid }}">
                             <span class="btn btn-primary btn-sm" onclick="deleteFromCart(this, {{ good.goodid }})">—</span>
-                            <span class="btn btn-default btn-sm" id="id-hs-good-number-{{ g.goodid }}" style="color: red;" disabled>
+                            <span class="btn btn-default btn-sm" id="id-hs-good-number-{{ good.goodid }}" style="color: red;" disabled>
                             </span>
                         </div>
                         <div class="col-xs-3">
@@ -62,6 +62,23 @@
 
     </div>
 
+<div id="hd-cart" class="footer">
+        <div class="container">
+            <div class="row">
+                <span class="glyphicon glyphicon-shopping-cart"></span>
+                <span id="hd-cart-count">N/A</span>件商品，共
+                <span id="hd-cart-bill">N/A</span>元
+                <button class="btn btn-warning"  id="hd-cart-submit"
+                    {% if rest_time %}
+                        onclick="alert('{{ rest_time }}')"
+                    {% else %}
+                        onclick="document.location = '{{ url_for('shop.get_cart') }}'"
+                    {% endif %}
+                >
+                    去结算</button>
+            </div>
+        </div>
+    </div>
 
   {% include 'footer.html' %}
 
@@ -84,6 +101,97 @@ $(function(){
 		width:$('#scroll_position').width()
 	});
 });
+
+
+    function flushCart() {
+        $.post(
+          "{{ url_for('ajax.cart.get_cart') }}",
+          {_csrf_token_: "{{ csrf_token() }}"},
+          function (data, textStatus){
+
+            if (data.status != 0) {
+                alert(data.error);
+                return;
+            }
+
+            var count = document.getElementById("hd-cart-count");
+            var bill = document.getElementById("hd-cart-bill");
+            var submitbutton = document.getElementById("hd-cart-submit");
+            if (data.data.bill/1000 >= 7) {
+                submitbutton.disabled = false;
+                submitbutton.innerHTML = "去结算";
+            } else {
+                submitbutton.innerHTML = "起送价7元哦";
+                submitbutton.disabled = true;
+            }
+            count.innerHTML = data.data.count;
+            bill.innerHTML = data.data.bill/1000;
+
+            var i;
+            var bars = document.getElementsByClassName("cl-hs-good-numberbar");
+            for (i=0; i<bars.length; i++)  {
+                bars[i].style.disabled = true;
+
+            }
+            $.each(data.data.goodlist, function() {
+                if (this.count < 1) {
+                    return
+                }
+                var bar = document.getElementById("id-hs-good-numberbar-" + this.goodid);
+                if (bar) {
+                    bar.style.disable = 'visible';
+                }
+                var num = document.getElementById("id-hs-good-number-" + this.goodid);
+//                alert(this.goodid + '#' + this.count + "#" + num);
+                if (num)
+                    num.innerHTML = this.count;
+            });
+      });
+    }
+
+    function addToCart(btn, goodid) {
+        btn.disabled = true;
+        var showModalTimeout = setTimeout(function() {
+            hsShowWaitingModal(btn);
+        }, 500);
+        $.post(
+          "{{ url_for('ajax.cart.add_good_to_cart') }}",
+          {_csrf_token_: "{{ csrf_token() }}", goodid: goodid},
+          function (data, textStatus){
+            clearTimeout(showModalTimeout);
+            hsHideWaitingModal(btn);
+            if (data.status != 0) {
+                alert(data.error);
+                return;
+            }
+            flushCart();
+      });
+      btn.disabled = false;
+    }
+
+    function deleteFromCart(btn, goodid) {
+        btn.disabled = true;
+        var showModalTimeout = setTimeout(function() {
+            hsShowWaitingModal(btn);
+        }, 500);
+        $.post(
+          "{{ url_for('ajax.cart.delete_good_from_cart') }}",
+          {_csrf_token_: "{{ csrf_token() }}", goodid: goodid},
+          function (data, textStatus){
+            clearTimeout(showModalTimeout);
+            hsHideWaitingModal(btn);
+            if (data.status != 0) {
+                alert(data.error);
+                return;
+            }
+            flushCart();
+      });
+      btn.disabled = false;
+    }
+
+    window.onload = function () {
+        flushCart();
+    };
 
   </script>
 
