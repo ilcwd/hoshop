@@ -47,12 +47,12 @@
                 <li class="list-group-item">
                     <div class="row">
                         <div class="col-xs-5 cl-hs-good-numberbar" id="id-hs-good-numberbar-{{ good.goodid }}">
-                            <span class="btn btn-primary btn-sm" onclick="deleteFromCart(this, {{ good.goodid }})">—</span>
+                            <button class="btn btn-primary btn-sm" id="id-hs-good-number-minus-{{ good.goodid }}" onclick="deleteFromCart(this, {{ good.goodid }})">—</button>
                             <span class="btn btn-default btn-sm" id="id-hs-good-number-{{ good.goodid }}" style="color: red;" disabled>
                             </span>
                         </div>
                         <div class="col-xs-3">
-                            <button class="btn btn-primary" onclick="addToCart(this, {{ good.goodid }})">点击加入购物车{{ decode_price(good.price) }}</button>
+                            <button class="btn btn-primary" onclick="addToCart(this, {{ good.goodid }})">点击加入购物车 ￥{{ decode_price(good.price) }}</button>
                         </div>
                     </div>
                 </li>
@@ -84,6 +84,9 @@
 
     <script src="{{ url_for('static', filename='js/hhswipe.js') }}"></script>
   <script>
+
+
+        {% if photos %}
       var slider = Swipe(document.getElementById('scroll_img'), {
 	auto: 3000,
 	continuous: true,
@@ -101,7 +104,7 @@ $(function(){
 		width:$('#scroll_position').width()
 	});
 });
-
+            {% endif %}
 
     function flushCart() {
         $.post(
@@ -130,23 +133,25 @@ $(function(){
             var i;
             var bars = document.getElementsByClassName("cl-hs-good-numberbar");
             for (i=0; i<bars.length; i++)  {
-                bars[i].style.disabled = true;
-
+//                bars[i].disabled = true;
             }
+
+            hsSetButtons({{ good.goodid }}, 0);
             $.each(data.data.goodlist, function() {
-                if (this.count < 1) {
-                    return
-                }
-                var bar = document.getElementById("id-hs-good-numberbar-" + this.goodid);
-                if (bar) {
-                    bar.style.disable = 'visible';
-                }
-                var num = document.getElementById("id-hs-good-number-" + this.goodid);
-//                alert(this.goodid + '#' + this.count + "#" + num);
-                if (num)
-                    num.innerHTML = this.count;
+                hsSetButtons(this.goodid, this.count);
             });
       });
+    }
+
+    function hsSetButtons(goodid, goodcount) {
+                var minusBtn = document.getElementById("id-hs-good-number-minus-" + goodid);
+                if (minusBtn) {
+                    minusBtn.disabled = (goodcount < 1);
+                }
+                var num = document.getElementById("id-hs-good-number-" + goodid);
+//                alert(this.goodid + '#' + this.count + "#" + num);
+                if (num)
+                    num.innerHTML = goodcount;
     }
 
     function addToCart(btn, goodid) {
