@@ -57,7 +57,7 @@
 
                 <div class="input-group">
                     <input name="address" type="text" id="id-hs-address" class="form-control" placeholder="请输入宿舍号"
-                            {% if default_contact %} value="{{ default_contact.address }}" {% endif %}
+                            {% if default_contact %} value="{{ default_contact.address.rsplit('@', 1)[0] }}" {% endif %}
                             >
                     <span class="input-group-btn btn-group">
                         <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span></button>
@@ -68,11 +68,24 @@
                         </ul>
                     </span>
                 </div>
+
             </td>
             <td class="col-xs-2">
                 <div class="checkbox">
                     <label><input name="setdefault" id="id-hs-submit-order-setdefault"
                                   type="checkbox" checked class="form-contrl">设为默认</label>
+                </div>
+            </td>
+        </tr>
+        <tr class="row">
+            <td class="col-xs-2">电话(可选)：</td>
+            <td class="col-xs-10" colspan="2">
+                <div class="input-group">
+                    <input name="phone" type="text" id="id-hs-phone" class="form-control" placeholder="可选"
+                            {% if default_contact and default_contact.address.find('@') != -1  %}
+                                value="{{ default_contact.address.rsplit('@', 1)[-1] }}"
+                            {% endif %}
+                            >
                 </div>
             </td>
         </tr>
@@ -118,6 +131,7 @@
       $(document).ready(function() {
         $("#id-hs-submit-order-button").click(function() {
             var address = document.getElementById("id-hs-address");
+            var phone = document.getElementById("id-hs-phone");
             var setdefault = document.getElementById("id-hs-submit-order-setdefault");
 
             if (!address.value) {
@@ -127,7 +141,7 @@
 
             $.post(
               "{{ url_for('ajax.cart.submit_order') }}",
-              {_csrf_token_: "{{ csrf_token() }}", address: address.value, setdefault: setdefault.value},
+              {_csrf_token_: "{{ csrf_token() }}", address: address.value, setdefault: setdefault.value, phone: phone.value},
               function (data, textStatus) {
                   if (data.status!=0) {
                       alert(data.error);

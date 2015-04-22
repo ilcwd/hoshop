@@ -84,7 +84,12 @@ def submit_order():
     userid = flask.session['userid']
     # TODO: avoid modify cart in other views
 
-    address = flask.request.form.get('address')
+    address = flask.request.form['address']
+    print flask.request.form
+    phone = flask.request.form.get('phone')
+    if phone:
+        address = address + '@' + phone
+
     setdefault = flask.request.form['setdefault'].lower() == 'on'
 
     r = cart.submit_order(userid, cartid, address, setdefault)
