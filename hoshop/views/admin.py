@@ -57,7 +57,7 @@ def add_good_do():
 def list_orders():
     cursor = flask.request.values.get('cursor', None)
     asc = int(flask.request.values.get('asc', 0))
-    r = cart.sync_orders(cursor, limit=5, asc=asc)
+    r = cart.sync_orders(cursor, limit=10, asc=asc)
     return flask.render_template('admin/orders.html',
                                  orders=r.data['orders'],
                                  forward_cursor=r.data.get('forward_cursor', ''),
