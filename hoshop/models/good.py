@@ -80,8 +80,11 @@ def get_good_and_photos(goodid):
     return good, photos
 
 
-def find_goods():
+def find_goods(show_zero_goods):
     sess = _db.get_session()
+    if show_zero_goods:
+        return sess.query(Good).filter(Good.expired_time>now()).all()
+
     return sess.query(Good).filter(Good.expired_time>now()).filter(Good.count_sold<Good.count_total).all()
 
 

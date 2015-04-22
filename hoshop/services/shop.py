@@ -31,9 +31,9 @@ def create_catalog(name):
     return HoShopDTO(error='create catalog fail')
 
 
-def show_goods():
+def show_goods(show_zero_goods=False):
     catalogs = _catalog.find_catalogs()
-    goods = _good.find_goods()
+    goods = _good.find_goods(show_zero_goods)
 
     return HoShopDTO(data=dict(
         catalogs=catalogs,
